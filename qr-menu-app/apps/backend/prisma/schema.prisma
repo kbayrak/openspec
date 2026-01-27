@@ -1,0 +1,140 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  engineType = "binary"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Business {
+  id                 String     @id @default(cuid())
+  name               String
+  slug               String     @unique
+  logo               String?
+  qrCodeSvg          String?    @db.Text
+  qrCodeFgColor      String?    @default("#000000")
+  qrCodeBgColor      String?    @default("#FFFFFF")
+  qrCodeLogoEnabled  Boolean    @default(false)
+  defaultLanguage    String     @default("en")
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  users              User[]
+  categories         Category[]
+
+  @@map("businesses")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  image         String?
+  passwordHash  String
+  role          String    @default("owner")
+  businessId    String
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+
+  business      Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  sessions      Session[]
+  accounts      Account[]
+
+  @@map("users")
+}
+
+model Category {
+  id           String   @id @default(cuid())
+  name         String
+  order        Int      @default(0)
+  businessId   String
+  translations Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  business     Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  products     Product[]
+
+  @@unique([businessId, name])
+  @@map("categories")
+}
+
+model Product {
+  id           String   @id @default(cuid())
+  name         String
+  description  String?  @db.Text
+  price        Decimal  @db.Decimal(10, 2)
+  imageUrl     String?
+  imageId      String?
+  categoryId   String
+  translations Json?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  category     Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  image        Image?   @relation(fields: [imageId], references: [id], onDelete: SetNull)
+
+  @@map("products")
+}
+
+model Image {
+  id        String    @id @default(cuid())
+  data      Bytes
+  mimeType  String
+  size      Int
+  filename  String
+  createdAt DateTime  @default(now())
+
+  products  Product[]
+
+  @@map("images")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  sessionToken String @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}

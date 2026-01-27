@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "businesses" ADD COLUMN "qrCodeFgColor" TEXT DEFAULT '#000000',
+ADD COLUMN "qrCodeBgColor" TEXT DEFAULT '#FFFFFF',
+ADD COLUMN "qrCodeLogoEnabled" BOOLEAN NOT NULL DEFAULT false;
