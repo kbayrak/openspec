@@ -33,11 +33,6 @@ npm run dev --workspace apps/backend
 npm run dev --workspace apps/frontend
 ```
 
-3. Configure env vars
-
-- `apps/backend/.env`
-- `apps/frontend/.env.example` (copy to `.env.local`)
-
 ## Docker (Production-like)
 
 Build and run all services:
@@ -61,7 +56,7 @@ docker compose --profile seed up --build seed
 ```
 cd qr-menu-app
 
-docker compose -f docker-compose.dev.yml up --build
+docker compose -f docker-compose.dev.yml up -d db
 ```
 
 ## Environment Variables
