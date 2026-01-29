@@ -57,6 +57,9 @@ docker compose --profile seed up --build seed
 cd qr-menu-app
 
 docker compose -f docker-compose.dev.yml up -d db
+
+cd qr-menu-app/apps/backend
+npm run db:seed
 ```
 
 ## Environment Variables
